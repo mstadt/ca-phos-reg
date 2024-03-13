@@ -5,7 +5,8 @@ ca.bone.init <- function() {
       PTHp = 53.90,
       PTHg = 0.5,
       PTgmax = 1.00,
-      B = 1260.0,
+      Ctriol = 1260.0,
+      AOH = 126, # Ctriol0/10
       SC = 0.0,
       P = 32.90,
       ECCPhos = 16.8,

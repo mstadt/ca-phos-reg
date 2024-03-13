@@ -36,7 +36,7 @@ ca.bone.derive.init <- function(camod) {
   ## Returns: updated camod list after
   ##   calling copy.init()
 
-  camod$init$A <- camod$init$B/10
+  # camod$init$A <- camod$init$Ctriol/10
   
   camod$init$TGFB <- camod$param$Pic0*1000
   camod$init$TGFBact <- camod$param$Pic0
@@ -96,7 +96,7 @@ ca.bone.responses <- function(out,camod) {
   out$BSAP <- with(out,OBfast+OBslow)
   out$sCTx <- out$OC
   out$CaConc <- out$P/camod$param$V1
-  out$CalcitriolConc <- out$B/camod$param$V1
+  out$CalcitriolConc <- out$Ctriol/camod$param$V1
   out
 
 }

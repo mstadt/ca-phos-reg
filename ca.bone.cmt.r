@@ -4,9 +4,9 @@ ca.bone.cmt <- function(){
     "PTHp", #"PTHp",
     "PTHg", #"S",
     "PTgmax", #"PTmax",
-    "B",
-    "SC",
-    "A",
+    "Ctriol", #"B",
+    "SC", # TODO: remove from mod eqns
+    "AOH", #"A",
     "P",
     "ECCPhos",
     "T",

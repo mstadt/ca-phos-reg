@@ -4,9 +4,9 @@ ca.bone.model <- function(t,y,p) {
   PTHp <- y[1] # circulating PTH
   PTHg <- y[2] # PTH gland pool # TODO: remove from model?
   PTgmax <- y[3] # PT gland max capacity
-  B <- y[4] # circulating calcitriol
-  SC <- y[5] # subcutaneous PTHp compartment # TODO: remove from model
-  A  <- y[6] # 1-alpha hydroxylase
+  Ctriol <- y[4] # circulating calcitriol
+  SC <- y[5] # subcutaneous PTHp compartment # TODO: remove from model! (will add as drug effect later...)
+  AOH  <- y[6] # 1-alpha hydroxylase
   P <- y[7] # extracellular calcium
   ECCPhos <- y[8] # extracellular phosphate
   T <- y[9] # oral calcium
@@ -133,9 +133,10 @@ ca.bone.model <- function(t,y,p) {
 
     KLSoc = Da*PicOC*LsurvOC#*3
     
-    C4 = PTHp/V1
+    #C4 = PTHp/V1
+    PTHpConc = PTHp/V1
     
-    T66 = (T67^AlphOHgam + 3.85^ AlphOHgam )/3.85^ AlphOHgam 
+    #T66 = (T67^AlphOHgam + 3.85^ AlphOHgam )/3.85^ AlphOHgam 
     
     k15a = k14a*QboneInit/Q0 
     
@@ -165,23 +166,23 @@ ca.bone.model <- function(t,y,p) {
     PTH50 = EmaxLpth*3.85 - 3.85 
     
     
-    PTHconc = C4
+    #PTHconc = C4
     
-    LpthEff = EmaxLpth*(PTHconc) / ((PTH50*OsteoEffect^TESTPOWER) + (PTHconc))  
+    LpthEff = EmaxLpth*(PTHpConc) / ((PTH50*OsteoEffect^TESTPOWER) + (PTHpConc))  
     
     kinL = kinLbase*(OsteoEffect)*LpthEff
     
     pObase = kO*OPG0
     
     
-    pO = pObase*(D/ROB0)*((PTHconc+(opgPTH50*(D/ROB0)))/(2*PTHconc))+ IO
+    pO = pObase*(D/ROB0)*((PTHpConc+(opgPTH50*(D/ROB0)))/(2*PTHpConc))+ IO
     
     RX2Kin = RX2Kout0*RX20
     
     
     EC50PTHRX2x = ((EmaxPTHRX2x*3.85)/(RX2Kout0 - E0rx2Kout)) - 3.85
     
-    RX2Kout = E0rx2Kout + EmaxPTHRX2x*PTHconc/(PTHconc+EC50PTHRX2x)
+    RX2Kout = E0rx2Kout + EmaxPTHRX2x*PTHpConc/(PTHpConc+EC50PTHRX2x)
     
     
     EC50PTHcreb = ((EmaxPTHcreb*3.85)/(1-E0crebKin)) -  3.85
@@ -189,17 +190,18 @@ ca.bone.model <- function(t,y,p) {
     crebKin0= crebKout*CREB0
     
     
-    crebKin =crebKin0* (E0crebKin + EmaxPTHcreb*PTHconc/(PTHconc+EC50PTHcreb))
+    crebKin =crebKin0* (E0crebKin + EmaxPTHcreb*PTHpConc/(PTHpConc+EC50PTHcreb))
     
     bcl2Kin = RX2*CREB*0.693
     
     
     CaConc = P/14
     
-    C2 = ECCPhos/V1 
+    #C2 = ECCPhos/V1 
+    PhosConc = ECCPhos/V1
     
     
-    PO4inhPTH = (C2/1.2)^PO4inhPTHgam      
+    PO4inhPTH = (PhosConc/1.2)^PO4inhPTHgam      
     
     PhosEffTop = (PhosEff0 - 1)*( 1.2^PhosEffGam + PhosEff50^PhosEffGam ) 
     
@@ -209,18 +211,19 @@ ca.bone.model <- function(t,y,p) {
     PhosEffMax =  PhosEffTop / PhosEffBot
     
     
-    PhosEff = PhosEff0 - (PhosEffMax*PhosEff0 * C2^PhosEffGam /(C2^ PhosEffGam  + PhosEff50^PhosEffGam))
+    PhosEff = PhosEff0 - (PhosEffMax*PhosEff0 * PhosConc^PhosEffGam /(PhosConc^ PhosEffGam  + PhosEff50^PhosEffGam))
     
     
-    if(C2 > 1.2) { PhosEffect = PhosEff } else { PhosEffect = 1 }
+    if(PhosConc> 1.2) { PhosEffect = PhosEff } else { PhosEffect = 1 }
     
-    T68 = T66*C4^AlphOHgam/(T67^AlphOHgam*PO4inhPTH+C4^AlphOHgam) 
+    #T68 = T66*PTHpConc^AlphOHgam/(T67^AlphOHgam*PO4inhPTH+PTHpConc^AlphOHgam) 
+    PTHpEffAOH = Vmax_AOH*PTHpConc^AlphOHgam/(PTHpEffAOH50^AlphOHgam*PO4inhPTH+PTHpConc^AlphOHgam)
     
-    
-    SE = T65*T68*PhosEffect
+    #SE = T65*PTHpEffAOH*PhosEffect
+    EffAOH = PTHpEffAOH * PhosEffect
     
     #C8 = B/V1
-    CtriolConc = B/V1 # calcitriol concentration
+    CtriolConc = Ctriol/V1 # calcitriol concentration
 
     C1 = P/V1 
     
@@ -233,7 +236,7 @@ ca.bone.model <- function(t,y,p) {
         
     ReabsMax = (0.3*GFR*2.35 - 0.149997)*(Reabs50 + 2.35) / 2.35
     
-    ReabsPTHeff = (T16*C4)/(C4 + T17) 
+    ReabsPTHeff = (T16*PTHpConc)/(PTHpConc + T17) 
     
     CaReabsActive = (ReabsMax*C1/(Reabs50 + C1))*ReabsPTHeff 
     
@@ -258,14 +261,14 @@ ca.bone.model <- function(t,y,p) {
     T47 = T46*0.88*GFR
     
     
-    J48a = 0.88*GFR*C2 - T47 
+    J48a = 0.88*GFR*PhosConc- T47 
     
     if(J48a < 0){J48 = 0} else{J48 = J48a}
     
     
     J53 = T52*PhosGut
     
-    J54 = T49*C2
+    J54 = T49*PhosConc
     
     
     J56 = T55*IntraPO
@@ -336,9 +339,9 @@ ca.bone.model <- function(t,y,p) {
 
     # Impact of calcium and calcitriol conc on PTHg production
     # MS might not need PTHg equation.... leaving out for now...
-    # alphaD3Ca = 0.03 * (CtriolConc - 90*(2.35/CaConc)^0.9)
-    # expalph = (exp(alphaD3Ca) - exp(-alphaD3Ca)) / (exp(alphaD3Ca) + exp(-alphaD3Ca))
-    # PHI_PTHg = 0.01 * (0.85 * (1 - expalph) + 0.15)
+    alphaD3Ca = 0.03 * (CtriolConc - 90*(2.35/CaConc)^0.9)
+    expalph = (exp(alphaD3Ca) - exp(-alphaD3Ca)) / (exp(alphaD3Ca) + exp(-alphaD3Ca))
+    PHI_PTHg = (0.01 * (0.85 * (1 - expalph) + 0.15))*0.5
     
     ############################################
     ## Differential Equations
@@ -351,25 +354,26 @@ ca.bone.model <- function(t,y,p) {
     ##  PTHg - PT gland pool 
     # MS: I don't think this equation is even necessary....
     # Could just set PTHg = 0.5 and then just use PTmax
-    # yn[2] = PHI_PTHg - kdeg_PTHg * PTHg
+    yn[2] = PHI_PTHg - kdeg_PTHg * PTHg
     #yn[2] = T76 - kdeg_PTHg * PTHg
     #yn[2] = kprod_PTHg - (PTHg / 0.5) * PTmax * FCa - kdeg_PTHg * PTHg
-    yn[2] = 0
+    #yn[2] = 0
 
     ## PTmax - PT maximum capacity
     # MS note: this is a normalized value
     #yn[3] = PTin - PTout * PTmax   
     yn[3] = eta_PTmax * (CtriolPTeff - PTgmax)    
     
-    ## B  -  Plasma calcitriol
-    yn[4] = 0 #A - T69 * B
+    ## Ctriol  -  Plasma calcitriol
+    yn[4] = AOH - (kdeg_Ctriol) * Ctriol # TODO: check if the SS makes sense....
+    #A - T69 * Ctriol
     
     ## SC - SubQ
     # TODO: REMOVE FROM MODEL
     yn[5] = 0 #IPTHint - 0.693*SC
     
-    ## A - 1-alpha hydroxylase
-    yn[6] = 0 #SE - T64*A  
+    ## AOH - 1-alpha hydroxylase
+    yn[6] = EffAOH - kdeg_AOH*AOH  
     
     ## P - plasma calcium
     yn[7] = 0 #J14 - J15 - J27 + J40   
@@ -382,6 +386,10 @@ ca.bone.model <- function(t,y,p) {
     
     ## R - intestinal calcium
     yn[10] = 0 #T36*(1- R) - T37*R
+
+    # BONE EQUATIONS!IDEA: replace with Jorg model... but will need to look into FGF effects...
+    #   IDEA: I could explore these equations in isolation and see if the extra signalling effects
+    #    really have any impacts on model results....
     
     ## HAp - Hydroxyapatite
     yn[11] = 0 #kHApIn*Osteoblast  - kLShap*HAp
