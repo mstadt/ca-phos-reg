@@ -1,37 +1,37 @@
 
 ca.bone.model <- function(t,y,p) {
   
-  PTH <- y[1]
-  S <- y[2]
-  PTmax <- y[3]
-  B <- y[4]
-  SC <- y[5]
-  A  <- y[6]
-  P <- y[7]
-  ECCPhos <- y[8]
-  T <- y[9]
-  R <- y[10]
-  HAp <- y[11]
-  OBfast <- y[12]
-  OBslow <- y[13]
-  PhosGut <- y[14]
-  IntraPO <- y[15]
-  OC <- y[16]
-  ROB1 <- y[17]
-  TGFB <- y[18]
-  TGFBact <- y[19]
-  L <- y[20]
-  RNK <- y[21]
-  M <- y[22]   
-  N <- y[23]
-  O <- y[24]
-  Q <- y[25]
-  Qbone <- y[26]
-  RX2 <- y[27]
-  CREB <- y[28]
-  BCL2 <- y[29]
-  TERISC <- y[30]
-  TERICENT <- y[31]
+  PTH <- y[1] # circulating PTH
+  S <- y[2] # PTH gland pool
+  PTmax <- y[3] # PT gland max capacity
+  B <- y[4] # circulating calcitriol
+  SC <- y[5] # subcutaneous PTH compartment
+  A  <- y[6] # 1-alpha hydroxylase
+  P <- y[7] # extracellular calcium
+  ECCPhos <- y[8] # extracellular phosphate
+  T <- y[9] # oral calcium
+  R <- y[10] # calcitriol dependent ca absorption
+  HAp <- y[11] # hydroxyapatite
+  OBfast <- y[12] # osteoblast - fast
+  OBslow <- y[13] # osteoblast - slow
+  PhosGut <- y[14] # oral phosphate
+  IntraPO <- y[15] # intracellular phosphate
+  OC <- y[16] # osteoclast
+  ROB1 <- y[17] # responding osteoblast
+  TGFB <- y[18] # latent TGF beta
+  TGFBact <- y[19] # active TGFbeta
+  L <- y[20] # RANKL
+  RNK <- y[21] # RANK
+  M <- y[22] # RANK-RANKL complex
+  N <- y[23] # OPG-RANKL complex
+  O <- y[24] # OPG
+  Q <- y[25] # bone calcium - immediately exchangeable
+  Qbone <- y[26] # bone calcium - non-immediately exchangeable
+  RX2 <- y[27] # RunX2
+  CREB <- y[28] # CREB
+  BCL2 <- y[29] # Bcl-2
+  TERISC <- y[30] # teriparatide subcutaneous dosing compartment
+  TERICENT <- y[31] # teriparatide central compartment
 
   yn <- c()
   with(p, {

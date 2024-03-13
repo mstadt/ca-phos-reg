@@ -1,15 +1,8 @@
 # This driver is to run the ca bone model without any drug dosing
 
-############# Begin User Input #################
-# # where to save the model output
-# today <- Sys.Date()
-# temp <- "out4daysTeri.csv"
-# filename <- paste(today, temp, sep = '_')
-############# End of User Input ################
-
 library(deSolve)
-library(lattice)
-library(reshape)
+library(rootSolve)
+library(tidyverse)
 
 source("ca.bone.lib.r")
 
@@ -17,59 +10,67 @@ camod <- ca.bone.load.model()
 camod <- ca.bone.derive.init(camod)
 
 
-## EVALUATION TIMES IN HOURS
-times <- seq(0,4*24,0.5)
+# set simulation times
+times <- seq(0,500,1)
 
+# initial condition
+IC = unlist(camod$init[camod$cmt])
 
-## TERIPARATIDE DOSING EVENTS (TIMES IN HOURS)
-teri.times <- seq(12,4*24,24)
-teri.dose.mcg <- 20
-teri.dose <- teri.dose.mcg*1E6/4117.8
+# Steady state solution
+print('get SS')
+ST <- stode(IC, time = 0, func = camod$model, parms = camod$param)
+print(ST$y)
 
-
-
-events <- data.frame(
-                     var="TERISC",
-                     time=teri.times,
-                     value=teri.dose,
-                     method="add"
-                     )
-
-
-## ADD DOSING EVENTS TO EVALUATION TIMES
-times <- sort(unique(c(times,events$time)))
-
-
+print('Running simulation')
 ## RUN THE MODEL
-
 out <- as.data.frame(
-                     lsoda(
-                           unlist(camod$init[camod$cmt]), 
-                           times, 
-                           camod$model,
-                           camod$param,
-                           rtol=1e-10,
-                           atol=1E-10,
-                           ynames=F,
-                           events=list(data=events)
-                           )
-                     )
+                    lsoda(
+                        IC, 
+                        times, 
+                        camod$model,
+                        camod$param,
+                        rtol=1e-10,
+                        atol=1E-10,
+                        ynames=F
+                        )
+                    )
+print('Simulation finished')
 
 
 ## POST PROCESSING
 out <- ca.bone.responses(out,camod)
 # this outputs the model output to a file so that I can later postprocess
-write.csv(out, file = filename) 
+# write.csv(out, file = filename) 
 
-## Optional plotting routine
-## REQUIRES loading of reshape and lattice libraries
-print(xyplot(value~time/24|variable,
-       data=melt(out,measure.vars=c("BSAP","sCTx","PTHpM","PTHconc",camod$cmt),id.vars="time"),
-       type='l',par.strip.text=list(cex=0.8),
-       scales=list(y=list(relation='free')),
-       xlab="Time (days)",
-       ylab="DV"
-       )
-)
+#' Plot
+print('Plotting results')
+ggplot(out) +
+  geom_line(aes(x=time,y=ECCPhos)) 
+  labs(x="Time (hours)", y="ECCPhos") 
+
+ggsave("eccphos.png",width = 8, height = 4, dpi = 300)
+
+
+# Plot Calcium
+ggplot(out) +
+  geom_line(aes(x=time,y=P)) +
+  labs(x="Time (hours)", y="Calcium conc")
+
+  ggsave("caconc.png",width = 8, height = 4, dpi = 300)
+
+# Plot FGF23
+# ggplot(out) +
+#   geom_line(aes(x=time,y=FGF23)) +
+#   labs(x="Time  (hours)", y="FGF23") 
+#   ggsave("fgf23.png",width = 8, height = 4, dpi = 300)
+
+
+# Plot PTH
+ggplot(out) +
+  geom_line(aes(x=time,y=PTH)) +
+  labs(x="Time (hours)", y="PTHconc") 
+  ggsave("pth.png",width = 8, height = 4, dpi = 300)
+
+print('done!')
 
 
