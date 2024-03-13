@@ -1,9 +1,9 @@
 
 ca.bone.cmt <- function(){
   c(
-    "PTH",
-    "S",
-    "PTmax",
+    "PTHp", #"PTHp",
+    "PTHg", #"S",
+    "PTgmax", #"PTmax",
     "B",
     "SC",
     "A",

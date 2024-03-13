@@ -3,12 +3,17 @@ ca.bone.param <- function() {
   ##   as "parameters" in the model.  These initial conditions
   ##   are copied into the parameter list through ca.bone.copy.init()
   list(
-      kdeg_PTH = 100/14, # degradation of PTHp
+      kdeg_PTHp = 100/14, # degradation of PTHp
       nCa = 11.7387,
-      KCa = 1.818314,
-      alpha = 6249.09,
-      beta = 96.25,
-      # OLD PARS BELOW
+      FCa50 = 1.818314,
+      alpha_PTH = 6249.09,
+      beta_PTH = 96.25,
+      kdeg_PTHg = 0.01,
+      Ctriol50 = 68.38055,
+      alpha_Ctriol = 4.1029,
+      beta_Ctriol = 0.9,
+      gamma_CtriolPT = 12.5033,
+      eta_PTmax = 0.0001604,
       k1 = 0.00000624,
       k2 = 0.112013,
       k3 = 0.00000624,
@@ -61,7 +66,7 @@ ca.bone.param <- function() {
       EmaxPTHcreb = 3.39745,
       crebKout = 0.00279513,
       bcl2Kout = 0.693,
-      ScaEffGam = 0.9,
+      # ScaEffGam = 0.9,
       PhosEff0 = 1.52493,
       PhosEff50 = 1.3021,
       PhosEffGam = 8.25229,
@@ -70,8 +75,7 @@ ca.bone.param <- function() {
       Reabs50 = 1.57322,
       T7 = 2, 
       T9 = 90,
-      T70 = 0.01,
-      T71 = 0.03,
+      # T71 = 0.03,
       T33 = 0.003,
       T34 = 0.037,
       T35 = 90,
@@ -97,10 +101,10 @@ ca.bone.param <- function() {
       OralCa = 24.055/24,
       T77 = 0.909359, 
       T80 = 4,
-      CtriolPTgam = 12.5033,
-      CtriolMax = 4.1029,
-      CtriolMin = 0.9,
-      PTout = 0.0001604,
+      # CtriolPTgam = 12.5033,
+      # CtriolMax = 4.1029,
+      # CtriolMin = 0.9,
+      # PTout = 0.0001604,
       IPTHint = 0,
       Pic0 = 0.228142,
       LsurvOCCgam = 3.0923,
@@ -108,10 +112,8 @@ ca.bone.param <- function() {
       kO = 15.8885,
       kb = 0.000605516,
       LsurvOCgam =3.09023,
-      FracOBfast = 0.797629,
-      TERIVC = 133,
-      TERICL = 94.3,
-      TERIKA = 16.4
+      FracOBfast = 0.797629
+      #T70 = 0.01
        )
 }
 

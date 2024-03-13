@@ -76,7 +76,7 @@ ggplot(out) +
 
 # Plot PTH
 ggplot(out) +
-  geom_line(aes(x=time,y=PTH)) +
+  geom_line(aes(x=time,y=PTHp)) +
   labs(x="Time (hours)", y="PTH") 
   ggsave("pth.png",width = 8, height = 4, dpi = 300)
 

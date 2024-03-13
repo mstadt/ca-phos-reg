@@ -20,10 +20,10 @@ ca.bone.load.model <- function() {
   source("ca.bone.model.r",)
 
   ca.bone.derive.init(list(init=ca.bone.init(),
-                           param=ca.bone.param(),
-                           cmt=ca.bone.cmt(),
-                           model=ca.bone.model
-                           )
+                          param=ca.bone.param(),
+                          cmt=ca.bone.cmt(),
+                          model=ca.bone.model
+                          )
                       )
 }
 
@@ -91,7 +91,7 @@ ca.bone.responses <- function(out,camod) {
   ## CaConc = plasma calcium concentration (mM)
   ## calcitriol = plasma calcitriol (pM)
   
-  out$PTHpM <- out$PTH/camod$param$V1
+  out$PTHpM <- out$PTHp/camod$param$V1
   out$PTHconc <- out$PTHpM*9.4
   out$BSAP <- with(out,OBfast+OBslow)
   out$sCTx <- out$OC

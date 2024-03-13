@@ -1,11 +1,11 @@
 
 ca.bone.model <- function(t,y,p) {
   
-  PTH <- y[1] # circulating PTH
-  S <- y[2] # PTH gland pool
-  PTmax <- y[3] # PT gland max capacity
+  PTHp <- y[1] # circulating PTH
+  PTHg <- y[2] # PTH gland pool # TODO: remove from model?
+  PTgmax <- y[3] # PT gland max capacity
   B <- y[4] # circulating calcitriol
-  SC <- y[5] # subcutaneous PTH compartment # TODO: remove from model
+  SC <- y[5] # subcutaneous PTHp compartment # TODO: remove from model
   A  <- y[6] # 1-alpha hydroxylase
   P <- y[7] # extracellular calcium
   ECCPhos <- y[8] # extracellular phosphate
@@ -30,6 +30,8 @@ ca.bone.model <- function(t,y,p) {
   RX2 <- y[27] # RunX2
   CREB <- y[28] # CREB
   BCL2 <- y[29] # Bcl-2
+  #print(y)
+ #print(BCL2)
 
   yn <- c()
   with(p, {
@@ -128,11 +130,10 @@ ca.bone.model <- function(t,y,p) {
     EC50surv = exp(log(EC50survInPar)/LsurvOCgam)
     
     LsurvOC = E0RANKL - (E0RANKL - EmaxL)*(PiL^LsurvOCgam/(PiL^LsurvOCgam + EC50surv^LsurvOCgam))
-       
-       
+
     KLSoc = Da*PicOC*LsurvOC#*3
     
-    C4 = PTH/V1
+    C4 = PTHp/V1
     
     T66 = (T67^AlphOHgam + 3.85^ AlphOHgam )/3.85^ AlphOHgam 
     
@@ -218,14 +219,15 @@ ca.bone.model <- function(t,y,p) {
     
     SE = T65*T68*PhosEffect
     
-    C8 = B/V1
+    #C8 = B/V1
+    CtriolConc = B/V1 # calcitriol concentration
 
     C1 = P/V1 
     
-    T36 = T33 + (T34-T33)*(C8^CaPOgam/(T35^CaPOgam+ C8^CaPOgam))
+    T36 = T33 + (T34-T33)*(CtriolConc^CaPOgam/(T35^CaPOgam+ CtriolConc^CaPOgam))
     
     
-    T37 = T34 - (T34-T33)*(C8^CaPOgam/(T35^CaPOgam+ C8^CaPOgam))
+    T37 = T34 - (T34-T33)*(CtriolConc^CaPOgam/(T35^CaPOgam+ CtriolConc^CaPOgam))
     
     CaFilt = 0.6*0.5*GFR*C1 
         
@@ -237,25 +239,21 @@ ca.bone.model <- function(t,y,p) {
     
     T20 = CaFilt - CaReabsActive
     
-    T10 = T7*C8/(C8+T9)
+    T10 = T7*CtriolConc/(CtriolConc+T9)
     
     J27a = (2-T10)*T20
     
     if(J27a<0) {J27 = 0} else{J27 = J27a}
     
-    ScaEff =  (2.35/CaConc)^ ScaEffGam 
+    # ScaEff =  (2.35/CaConc)^ ScaEffGam 
     
-    T72 = 90 * ScaEff  
+    # T72 = 90 * ScaEff  
     
-    T73 = T71 * (C8 - T72) 
+    # T73 = T71 * (CtriolConc - T72) 
     
+    # T74 = (exp(T73) - exp(-T73)) / (exp(T73) + exp(-T73))
     
-    T74 = (exp(T73) - exp(-T73)) / (exp(T73) + exp(-T73))
-    
-    T75 = T70 * (0.85 * (1 + T74) + 0.15)  
-    
-    
-    T76 = T70 * (0.85 * (1 - T74) + 0.15)
+    # T76 = T70 * (0.85 * (1 - T74) + 0.15)
     
     T47 = T46*0.88*GFR
     
@@ -288,8 +286,7 @@ ca.bone.model <- function(t,y,p) {
     
     E0RUNX2kbEff= E0RUNX2kbEffFACT*kb  
     
-    
-    if(BCL2 > 105) {RUNX2 = BCL2 - 90}else {RUNX2 = 10}
+    if(BCL2 > 105){RUNX2 = BCL2 - 90}else {RUNX2 = 10}
     
     RUNkbMax = E0RUNX2kbEff*RUNkbMaxFact
     
@@ -325,30 +322,44 @@ ca.bone.model <- function(t,y,p) {
     
     F11 = T85
     
-    INparenCtriol =((CtriolMax - CtriolMin) * C8^CtriolPTgam) / (CtriolMax - 1) - C8^CtriolPTgam 
+    #INparenCtriol =((CtriolMax - CtriolMin) * CtriolConc^CtriolPTgam) / (CtriolMax - 1) - CtriolConc^CtriolPTgam 
     
-    Ctriol50 = exp(log(INparenCtriol) / CtriolPTgam) 
-    
-    CtriolPTeff = CtriolMax - (CtriolMax - CtriolMin) * C8^CtriolPTgam / (C8^CtriolPTgam + Ctriol50^CtriolPTgam) 
-    
-    PTin= PTout * CtriolPTeff
+    #Ctriol50 = exp(log(INparenCtriol) / CtriolPTgam) 
+    #print(Ctriol50)
+    #Ctriol50 = 68.38055
+    #CtriolPTeff = CtriolMax - (CtriolMax - CtriolMin) * CtriolConc^CtriolPTgam / (CtriolConc^CtriolPTgam + Ctriol50^CtriolPTgam) 
+    CtriolPTeff =  alpha_Ctriol - (alpha_Ctriol - beta_Ctriol) * CtriolConc^gamma_CtriolPT / (CtriolConc^gamma_CtriolPT + Ctriol50^gamma_CtriolPT)
+    # PTin= PTout * CtriolPTeff
     
     # Impact of calcium conc on PTHg secretion
-    FCa =  alpha - (alpha - beta) * (CaConc)^nCa / ((CaConc)^nCa + KCa^nCa)
+    FCa =  alpha_PTH - (alpha_PTH - beta_PTH) * (CaConc)^nCa / ((CaConc)^nCa + FCa50^nCa)
+
+    # Impact of calcium and calcitriol conc on PTHg production
+    # MS might not need PTHg equation.... leaving out for now...
+    # alphaD3Ca = 0.03 * (CtriolConc - 90*(2.35/CaConc)^0.9)
+    # expalph = (exp(alphaD3Ca) - exp(-alphaD3Ca)) / (exp(alphaD3Ca) + exp(-alphaD3Ca))
+    # PHI_PTHg = 0.01 * (0.85 * (1 - expalph) + 0.15)
     
     ############################################
     ## Differential Equations
     ############################################
     
-    ## Parathyroid (PTH)
-    # d(PTH)/dt
-    yn[1] = (S / 0.5) * PTmax * FCa - kdeg_PTH * PTH
+    ## Circulating PTH (PTHp)
+    # d(PTHp)/dt
+    yn[1] = (PTHg / 0.5) * PTgmax * FCa - kdeg_PTHp * PTHp
     
-    ##  S - PT gland pool 
-    yn[2] = (1 - S) * T76 - (S* T75) 
-    
+    ##  PTHg - PT gland pool 
+    # MS: I don't think this equation is even necessary....
+    # Could just set PTHg = 0.5 and then just use PTmax
+    # yn[2] = PHI_PTHg - kdeg_PTHg * PTHg
+    #yn[2] = T76 - kdeg_PTHg * PTHg
+    #yn[2] = kprod_PTHg - (PTHg / 0.5) * PTmax * FCa - kdeg_PTHg * PTHg
+    yn[2] = 0
+
     ## PTmax - PT maximum capacity
-    yn[3] = PTin - PTout * PTmax       
+    # MS note: this is a normalized value
+    #yn[3] = PTin - PTout * PTmax   
+    yn[3] = eta_PTmax * (CtriolPTeff - PTgmax)    
     
     ## B  -  Plasma calcitriol
     yn[4] = 0 #A - T69 * B
