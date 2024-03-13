@@ -5,7 +5,7 @@ ca.bone.model <- function(t,y,p) {
   S <- y[2] # PTH gland pool
   PTmax <- y[3] # PT gland max capacity
   B <- y[4] # circulating calcitriol
-  SC <- y[5] # subcutaneous PTH compartment
+  SC <- y[5] # subcutaneous PTH compartment # TODO: remove from model
   A  <- y[6] # 1-alpha hydroxylase
   P <- y[7] # extracellular calcium
   ECCPhos <- y[8] # extracellular phosphate
@@ -30,8 +30,6 @@ ca.bone.model <- function(t,y,p) {
   RX2 <- y[27] # RunX2
   CREB <- y[28] # CREB
   BCL2 <- y[29] # Bcl-2
-  TERISC <- y[30] # teriparatide subcutaneous dosing compartment
-  TERICENT <- y[31] # teriparatide central compartment
 
   yn <- c()
   with(p, {
@@ -41,7 +39,7 @@ ca.bone.model <- function(t,y,p) {
     T15 = CaDay/(2.35*14*24)
     
     T17 = 3.85*T16 - 3.85
-       
+
     Osteoclast =  OC
     
     J14OC50= exp(log((J14OCmax*OC0^J14OCgam/T13) - OC0^J14OCgam)/J14OCgam)
@@ -335,32 +333,16 @@ ca.bone.model <- function(t,y,p) {
     
     PTin= PTout * CtriolPTeff
     
-    INparenCa = (T58 - T61) * 2.35^T59 / (T58 - 385) - 2.35^T59  
-    
-    T60 = exp(log(INparenCa) / T59)  
-    
-    FCTD = (S / 0.5) * PTmax
-    
-    T63 =  T58 - (T58 - T61) * (CaConc)^T59 / ((CaConc)^T59 + T60^T59)
-    
-    EPTH = T63 * FCTD
-    
-    IPTH = 0.693*SC +  IPTHinf
-    
-    SPTH = EPTH + IPTH 
-    
-    kout = T57/14
-
-
-    TERIPK = TERISC*TERICL/TERIVC
+    # Impact of calcium conc on PTHg secretion
+    FCa =  alpha - (alpha - beta) * (CaConc)^nCa / ((CaConc)^nCa + KCa^nCa)
     
     ############################################
     ## Differential Equations
     ############################################
     
-   
     ## Parathyroid (PTH)
-    yn[1] = SPTH - kout*PTH + TERIPK
+    # d(PTH)/dt
+    yn[1] = (S / 0.5) * PTmax * FCa - kdeg_PTH * PTH
     
     ##  S - PT gland pool 
     yn[2] = (1 - S) * T76 - (S* T75) 
@@ -369,85 +351,83 @@ ca.bone.model <- function(t,y,p) {
     yn[3] = PTin - PTout * PTmax       
     
     ## B  -  Plasma calcitriol
-    yn[4] = A - T69 * B
+    yn[4] = 0 #A - T69 * B
     
     ## SC - SubQ
-    yn[5] = IPTHint - 0.693*SC
+    # TODO: REMOVE FROM MODEL
+    yn[5] = 0 #IPTHint - 0.693*SC
     
     ## A - 1-alpha hydroxylase
-    yn[6] = SE - T64*A  
+    yn[6] = 0 #SE - T64*A  
     
     ## P - plasma calcium
-    yn[7] = J14 - J15 - J27 + J40   
+    yn[7] = 0 #J14 - J15 - J27 + J40   
     
     ## ECCphos - phosphate
-    yn[8] = J41  - J42 - J48 + J53 - J54 + J56
+    yn[8] = 0 #J41  - J42 - J48 + J53 - J54 + J56
     
     ## T - oral calcium gut
-    yn[9] = OralCa*F11 - J40
+    yn[9] = 0 #OralCa*F11 - J40
     
     ## R - intestinal calcium
-    yn[10] = T36*(1- R) - T37*R
+    yn[10] = 0 #T36*(1- R) - T37*R
     
     ## HAp - Hydroxyapatite
-    yn[11] = kHApIn*Osteoblast  - kLShap*HAp
+    yn[11] = 0 #kHApIn*Osteoblast  - kLShap*HAp
     
     ## OBfast - Fast osteoblast
-    yn[12] = (bigDb/PicOB)*D*FracOBfast*Frackb2  - kbfast*OBfast
+    yn[12] = 0 #(bigDb/PicOB)*D*FracOBfast*Frackb2  - kbfast*OBfast
     
     ## OBslow - Slow osteoblast
-    yn[13] = (bigDb/PicOB)*D*(1-FracOBfast)*Frackb - kbslow*OBslow
+    yn[13] = 0 #(bigDb/PicOB)*D*(1-FracOBfast)*Frackb - kbslow*OBslow
     
     ## PhosGut - oral phosphate
-    yn[14] = OralPhos *F12 - J53
+    yn[14] = 0 #OralPhos *F12 - J53
     
     ## IntraPO - intraceulular phosphate
-    yn[15] = J54 - J56
+    yn[15] = 0 #J54 - J56
     
     ## OC = Osteoclast
-    yn[16] = kinOC2 - KLSoc*OC
+    yn[16] = 0 #kinOC2 - KLSoc*OC
     
     ## ROB1 - responding osteoblast
-    yn[17] = ROBin - KPT*ROB1
+    yn[17] = 0 #ROBin - KPT*ROB1
     
     ## TGFB - Latent TGFbeta
-    yn[18] = kinTGF*(((Osteoblast/OB0)^OBtgfGAM)) - koutTGFeqn
+    yn[18] = 0 #kinTGF*(((Osteoblast/OB0)^OBtgfGAM)) - koutTGFeqn
     
     ## TGFBact - active TGFbeta
-    yn[19] = koutTGFeqn - koutTGFact*TGFBact
+    yn[19] = 0 #koutTGFeqn - koutTGFact*TGFBact
     
     ## L - RANKL
-    yn[20] = kinL- koutL*L - k1*O*L + k2*N - k3*RNK*L + k4*M
+    yn[20] = 0 #kinL- koutL*L - k1*O*L + k2*N - k3*RNK*L + k4*M
     
     ## RNK - RANK
-    yn[21] = kinRNK*TGFBact^kinRNKgam - koutRNK*RNK - k3*RNK*L  + k4*M 
+    yn[21] = 0 #kinRNK*TGFBact^kinRNKgam - koutRNK*RNK - k3*RNK*L  + k4*M 
     
     ## M - RANK-RANKL
-    yn[22] = k3*RNK*L - k4*M 
+    yn[22] = 0 #k3*RNK*L - k4*M 
     
     ## N - RANKL-OPG
-    yn[23] = k1*O*L - k2*N 
+    yn[23] = 0 #k1*O*L - k2*N 
     
     ## O - OPG
-    yn[24] = pO - k1*O*L + k2*N - kO*O 
+    yn[24] = 0 #pO - k1*O*L + k2*N - kO*O 
     
     ## Q - Bone Ca (IC)
-    yn[25] = J15 - J14 + J14a - J15a 
+    yn[25] = 0 #J15 - J14 + J14a - J15a 
     
     ## Qbone - Bone Ca (non-IC)
-    yn[26] = J15a - J14a 
+    yn[26] = 0 #J15a - J14a 
     
     ## RX2 - RunX2
-    yn[27] = RX2Kin - RX2Kout*RX2 
+    yn[27] = 0 #RX2Kin - RX2Kout*RX2 
     
     ## CREB
-    yn[28] = crebKin - crebKout*CREB
+    yn[28] = 0 #crebKin - crebKout*CREB
     
     ## BCL2 - Bcl-2
-    yn[29] = bcl2Kin - bcl2Kout*BCL2
-
-    ## Teriparatide SQ dosing compartment
-    yn[30] = - TERISC*TERICL/TERIVC
+    yn[29] = 0 #bcl2Kin - bcl2Kout*BCL2
 
     list(c(yn))
   })

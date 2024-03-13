@@ -18,7 +18,10 @@ IC = unlist(camod$init[camod$cmt])
 
 # Steady state solution
 print('get SS')
-ST <- stode(IC, time = 0, func = camod$model, parms = camod$param)
+#ST <- stode(IC, time = 0, func = camod$model, parms = camod$param)
+# This function runs system of ODEs to SS solution
+ST <- runsteady(IC, time = c(0,Inf), func = camod$model, parms = camod$param)
+#ST <- steady(IC, time = c(0,Inf), func = camod$model, parms = camod$param)
 print(ST$y)
 
 print('Running simulation')
@@ -53,7 +56,7 @@ ggsave("eccphos.png",width = 8, height = 4, dpi = 300)
 
 # Plot Calcium
 ggplot(out) +
-  geom_line(aes(x=time,y=P)) +
+  geom_line(aes(x=time,y=CaConc)) +
   labs(x="Time (hours)", y="Calcium conc")
 
   ggsave("caconc.png",width = 8, height = 4, dpi = 300)
@@ -65,11 +68,23 @@ ggplot(out) +
 #   ggsave("fgf23.png",width = 8, height = 4, dpi = 300)
 
 
+# Plot PTHconc
+ggplot(out) +
+  geom_line(aes(x=time,y=PTHconc)) +
+  labs(x="Time (hours)", y="PTHconc") 
+  ggsave("pthconc.png",width = 8, height = 4, dpi = 300)
+
 # Plot PTH
 ggplot(out) +
   geom_line(aes(x=time,y=PTH)) +
-  labs(x="Time (hours)", y="PTHconc") 
+  labs(x="Time (hours)", y="PTH") 
   ggsave("pth.png",width = 8, height = 4, dpi = 300)
+
+# Plot calcitriol
+ggplot(out) +
+  geom_line(aes(x=time,y=CalcitriolConc)) +
+  labs(x="Time (hours)", y="Ctriolconc") 
+  ggsave("ctriol.png",width = 8, height = 4, dpi = 300)
 
 print('done!')
 

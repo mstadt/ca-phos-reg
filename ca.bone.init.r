@@ -24,7 +24,6 @@ ca.bone.init <- function() {
        Qbone = 24900.0,
        RX2 = 10.0,
        CREB = 10.0,
-       BCL2 = 100.0,
-       TERISC=0
+       BCL2 = 100.0
        )
 }

@@ -29,9 +29,7 @@ ca.bone.cmt <- function(){
     "Qbone",
     "RX2",
     "CREB",
-    "BCL2",
-    "TERISC"
-  
+    "BCL2"
     )
 }
   
